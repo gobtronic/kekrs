@@ -1,0 +1,12 @@
+[package]
+name = "kekrs"
+authors = ["gobtronic"]
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.99"
+confy = "1.0.0"
+console = "0.16.0"
+dialoguer = "0.12.0"
+serde = { version = "1.0.219", features = ["derive"] }
