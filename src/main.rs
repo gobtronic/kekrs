@@ -1,3 +1,4 @@
+mod addon;
 mod config;
 mod log;
 mod setup;
@@ -9,6 +10,8 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 use config::Config;
 use log::*;
+
+use crate::wow::Instance;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -45,6 +48,9 @@ fn run(cli: Args) -> Result<()> {
         ilog("You don't have any WoW installation linked yet, will run setup.");
         setup::run(&mut cfg)?;
     }
+
+    let mut instance = Instance::from_dir_path(&cfg.wow_dir_path)?;
+    instance.reload_addons()?;
 
     Ok(())
 }
