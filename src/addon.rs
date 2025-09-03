@@ -7,6 +7,7 @@ use std::{
 pub struct Addon {
     pub dir_path: PathBuf,
     pub toc_path: PathBuf,
+    pub is_git: bool,
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -24,7 +25,14 @@ enum ValidationError {
 impl Addon {
     pub fn from_dir_path(dir_path: PathBuf) -> Result<Addon> {
         let toc_path = Addon::toc_path(&dir_path)?;
-        Ok(Addon { dir_path, toc_path })
+        let mut git_dir_path = dir_path.clone();
+        git_dir_path.push(".git");
+        let is_git = Path::new(&git_dir_path).is_dir();
+        Ok(Addon {
+            dir_path,
+            toc_path,
+            is_git,
+        })
     }
 
     fn toc_path(dir_path: &PathBuf) -> Result<PathBuf> {
