@@ -1,35 +1,36 @@
-use crate::log::*;
+use anyhow::Result;
 use std::path::{Path, PathBuf};
 
-pub fn is_valid_wow_dir_path(dir_path: &PathBuf, verbose: bool) -> bool {
+#[derive(thiserror::Error, Debug)]
+enum ValidationError {
+    #[error("invalid path")]
+    Invalid,
+    #[error("relative path (expected absolute)")]
+    Relative,
+    #[error("path is not a directory")]
+    NotADirectory,
+    #[error("couldn't find WoW.exe")]
+    NotAWoWDirectory,
+}
+
+pub fn validate_dir_path(dir_path: &PathBuf) -> Result<()> {
     let path = Path::new(&dir_path);
     if !path.exists() {
-        if verbose {
-            elog("Invalid path");
-        }
-        return false;
+        return Err(ValidationError::Invalid.into());
     }
     if path.is_relative() {
-        if verbose {
-            elog("Relative path, an absolute path is expected");
-        }
-        return false;
+        return Err(ValidationError::Relative.into());
     }
     if path.is_file() {
-        if verbose {
-            elog("Path is not a directory");
-        }
+        return Err(ValidationError::NotADirectory.into());
     }
 
     let mut exe_pathbuf = dir_path.clone();
     exe_pathbuf.push("WoW.exe");
     let exe_path = Path::new(&exe_pathbuf);
     if !exe_path.exists() {
-        if verbose {
-            elog("No WoW.exe found, please check that the provided path is a valid WoW directory");
-        }
-        return false;
+        return Err(ValidationError::NotAWoWDirectory.into());
     }
 
-    true
+    Ok(())
 }
